@@ -6,7 +6,7 @@ from PyQt5 import QtWidgets, uic,QtGui
 from PyQt5.QtCore import *
 
 from PythonSocketServer import SocketServer
-from mainwindow import Ui_MainWindow
+from mainwindow1 import Ui_MainWindow
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
@@ -18,8 +18,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         super().setWindowTitle("HD sEMG")
         self.app = app
-        
-        self.label.setText("File Name (5 alphabetic characters).")
+        self.imuPort = 'null'
+        self.label.setText("File Name (4 alphabetic characters).")
         self.lcdNumber.display(123456)
 
 
@@ -42,6 +42,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Apply button
         self.pushButton_3.setCheckable(True)
         self.pushButton_3.clicked.connect(self.the_button3_clicked)
+
+        # Test button
+        self.pushButton_4.setCheckable(True)
+        self.pushButton_4.clicked.connect(self.the_button4_clicked)
 
         # checkBox
 
@@ -95,6 +99,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             print('Invalid name format. Please change another file name.')
 
+    def the_button4_clicked(self):
+        com = self.lineEdit_2.text()
+        self.imuPort = com
+
     def apply_fileName(self,s):
         print(s)
 
@@ -117,7 +125,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             print('ip status wasn\'t updated.')
 
     def imu(self):
-        self.imuT = imuThread.imuThread(self.name+'1')
+        self.imuT = imuThread.imuThread(self.name+'1', self.imuPort)
         self.imuT.start()
 
 

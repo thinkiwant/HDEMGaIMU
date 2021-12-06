@@ -1,8 +1,8 @@
 # coding:UTF-8
-import serial, os, re
+import serial, os, re, string
 
 class IMU():
-    def __init__(self, filename = 'imu'):
+    def __init__(self, filename = 'imu', imuPort = 'null'):
         self.RecordingSign = True
         self.ACCData = [0.0] * 8
         self.GYROData = [0.0] * 8
@@ -17,6 +17,7 @@ class IMU():
         self.w = tuple([0.0] * 3)
         self.Angle = tuple([0.0] * 3)
         self.Port = tuple([0.0] * 3)
+        self.imuPort = imuPort
         self.fileName = filename
 
 
@@ -90,12 +91,24 @@ class IMU():
                     self.CheckSum = 0
                     self.Bytenum = 0
                     self.FrameState = 0
+            else:
+                if self.Bytenum < 10:
+                    #self.GYROData[self.Bytenum - 2] = data
+                    self.CheckSum += data
+                    self.Bytenum += 1
+                else:
+                    self.CheckSum = 0
+                    self.Bytenum = 0
+                    self.FrameState = 0
 
     def start(self):
         self.RecordingSign = True
         # use raw_input function for python 2.x or input function for python3.x
         # port = raw_input('please input port No. such as com7:')
-        port = input('please input port No. such as com7:')
+        if self.imuPort=='null':
+            port = input('please input port No. such as com7:')
+        else:
+            port = self.imuPort
         #baud = int(input('please input baudrate(115200 for JY61 or 9600 for JY901):'))
         baud = 115200
         ser = serial.Serial(port, baud, timeout=0.5)  # ser = serial.Serial('com7',115200, timeout=0.5)
@@ -108,7 +121,7 @@ class IMU():
         returnRate = 'ffaa030b00'
         ReturnRateByte = bytes.fromhex(returnRate)
         returnedContent = 'ffaa022600'
-        ContentByte = bytes.fromhex(returnedContent)
+        ContentByte = bytes.fromhex(returnedContent) # 0x51 acc 0x52 gyro 0x55 port
         portMode = 'ffaa100100'
         PortModeByte = bytes.fromhex(portMode)
         ser.write(UnlockByte)
